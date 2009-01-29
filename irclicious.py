@@ -6,7 +6,6 @@ identifies poster and tags,
 if possible, posts to delicious.
 """
 
-__author__ = "Jean-Charles <anhj> Bagneris"
 __version__ = "0.01"
 __copyright__ = "Copyright (c) 2007 GCU"
 __license__ = "BSD"
