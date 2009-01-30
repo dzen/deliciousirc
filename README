@@ -14,6 +14,36 @@ Installation
 
 Dépose le contenu de l'archive où tu veux (chez moi c'est ``~/bin/``).
 
+
+Configuration
+-------------
+
+Le fichier de configuration se trouve au meme endroit que irclicious.py
+C'est du yaml, donc un ensemble de cl� valeurs:
+http://fr.wikipedia.org/wiki/Yaml
+ou
+http://en.wikipedia.org/wiki/Yaml
+
+voici une configuration :
+
+----- %< -------
+--- #YAML:1.1
+
+login: delicioususer
+pass: deliciouspassword
+
+exclude_tags:
+    - notag
+    - enotag
+    - osef
+
+
+scraplist: 'crap.txt'
+
+
+----- >% -------
+
+
 Utilisation
 -----------
 Attention, le fichier ``irciliciousrc`` contient le login et le pass del.icio.us

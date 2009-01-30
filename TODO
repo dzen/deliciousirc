@@ -1,0 +1,10 @@
+irclicious.py
+=============
+
+- give a more complex configuration yamlized        [done]
+- fix refresh when resizing teh window              [done]
+- show info about one url               
+- speedup urlparsing
+- be more object-oriented
+- delay posting in a thread
+
