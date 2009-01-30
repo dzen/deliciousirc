@@ -6,25 +6,24 @@ identifies poster and tags,
 if possible, posts to delicious.
 """
 
-__author__ = "Jean-Charles <anhj> Bagneris"
-__version__ = "0.01"
-__copyright__ = "Copyright (c) 2007 GCU"
+__version__ = "0.02"
+__copyright__ = "Copyright (c) 2007-2009 GCU"
 __license__ = "BSD"
 
 import sys
 import re
 import os
 import optparse
-import ConfigParser
+import yaml
 import webbrowser
 from urlparse import urlparse
+import pprint
 
 import urwid
 import urwid.curses_display
 #kinda gruika
 
 #import deliciousapi as deliciousmodule
-#deliciousapi = deliciousmodule.DeliciousAPI()
 import deliciousapi
 
 from deliciousapi import DeliciousAPI
@@ -165,22 +164,28 @@ class MainWindow(object):
         ])
         self.ui.run_wrapper(self.run)
 
+    def redisplay(self):
+        """if the display iz br0kmut"""
+        self.ui.draw_screen(self.size, self.view.render(self.size, focus=1))
+
     def run(self):
         """here we startz"""
         print "started"
-        size = self.ui.get_cols_rows()
-        itemlist = [UrlWidget(line,size,None,'selected', self.dh) for line in urls]
+        self.size = self.ui.get_cols_rows()
+        itemlist = [UrlWidget(line,self.size,None,'selected', self.dh) for line in urls]
         self.items = urwid.PollingListWalker(itemlist)
         self.listbox = urwid.ListBox(self.items)
         self.instruct = urwid.Text("[v]iew [r]etag [p]ost [s]crap [q]quit")
         self.header = urwid.AttrWrap(self.instruct, 'header')
-        self.tagedit = urwid.Edit("")
+        self.tagedit = urwid.Edit("Edit teh tag:")
         self.footer = urwid.AttrWrap(self.tagedit,'header')
         self.view = urwid.Frame(self.listbox, self.header, self.footer)
 
         while 1:
-            self.ui.draw_screen( size, self.view.render(size, focus=1))
+            self.redisplay()
             keys = None
+            focus, _ign = self.listbox.body.get_focus()
+
             while not keys:
                 keys = self.ui.get_input()
             for k in keys:
@@ -195,17 +200,17 @@ class MainWindow(object):
                     #scrap(focus, scraplist)
                     pass
                 if k in ('r','R','enter'):
-                    self.retag()
-                if k in ('p','P'):
-                    self.dlcpost()
+                    self.retag(focus)
+#                if k in ('p','P'):
+#                    self.dlcpost()
                 if k in ('v','V'):
                     # view
                     webbrowser.open_new_tab(focus.url)
                     self.ui.clear()
                 if "window resize" in keys:
-                    cols, rows = self.ui.get_cols_rows()
-                self.view.keypress(size, k)
-
+                    self.size = self.ui.get_cols_rows()
+                    self.redisplay()
+                self.view.keypress(self.size, k)
 
     def scrap(self, item, liste):
         """adds an item to teh scapz list"""
@@ -221,20 +226,20 @@ class MainWindow(object):
         else:
             liste.remove(domain)
 
-
     def retag(self, item):
-        view.set_focus('footer')
-        tagedit.set_edit_pos(len(tagedit.edit_text))
+        """retags teh current url"""
+        self.view.set_focus('footer')
+        self.tagedit.set_edit_pos(len(self.tagedit.edit_text))
         while True:
-            keys = ui.get_input()
-            canvas = view.render(size, focus=True)
-            ui.draw_screen(size, canvas )
+            keys = self.ui.get_input()
+            canvas = self.view.render(self.size, focus=True)
+            self.ui.draw_screen(self.size, canvas )
             for k in keys:
                 if k == "enter":
-                    view.set_focus('body')
-                    item.tags = [s.strip() for s in tagedit.edit_text.split(',')]
+                    self.view.set_focus('body')
+                    item.tags = [s.strip() for s in self.tagedit.edit_text.split(',')]
                     return
-                view.keypress(size,k)
+                self.view.keypress(self.size, k)
 
 
 #def run():
@@ -321,9 +326,8 @@ if __name__ == "__main__":
         p.print_help()
         exit
     print "Reading config file... "
-    config = ConfigParser.RawConfigParser()
-    config.read(['/etc/ircliciousrc',os.path.expanduser('~/.irclicious/config'),
-        'ircliciousrc'])
+    config = yaml.load(file('./irclicious.yml'))
+    pprint.pprint(config)
 #    dlclogin = config.get('delicious','login')
 #    dlcpass = config.get('delicious','pass')
     if len(arguments) == 1:
