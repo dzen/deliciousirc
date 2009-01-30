@@ -1,30 +1,31 @@
 irclicious.py
 =============
 
-Dépendances
------------
+Depends
+-------
 - urwid http://excess.org/urwid/ 
 - deliciousapi http://www.michael-noll.com/wiki/Del.icio.us_Python_API
 
-Les deux sont dispos en package debian, le nom est python-nomdutruc pour chacun
-d'entre eux.
+Install
+-------
 
-Installation
-------------
+This is a preliminary version, just drop ircilicious.py and the config file
+somewhere (I put it in ``~/bin/``).
 
-Dépose le contenu de l'archive où tu veux (chez moi c'est ``~/bin/``).
-
+Running ircilicious
+-------------------
+Edit the ``irciliciousrc`` config file and put your ``delicious.com``
+credentials in it, then ``chmod`` accordingly.
 
 Configuration
 -------------
 
-Le fichier de configuration se trouve au meme endroit que irclicious.py
-C'est du yaml, donc un ensemble de cl� valeurs:
+the configuration is a yaml file so that's a key/value list so take a look at:
 http://fr.wikipedia.org/wiki/Yaml
-ou
+or
 http://en.wikipedia.org/wiki/Yaml
 
-voici une configuration :
+here is a configuration sample:
 
 ----- %< -------
 --- #YAML:1.1
@@ -43,25 +44,25 @@ scraplist: 'crap.txt'
 
 ----- >% -------
 
+	21:07 < nick> howdy
+	21:08 < nick> great http://github.com/dzen/deliciousirc/ #delicious, irc#
+	21:09 -!- nick [n=someone@domain.org] has quit [Remote closed the connection]
 
-Utilisation
------------
-Attention, le fichier ``irciliciousrc`` contient le login et le pass del.icio.us
-de GCU.
+If your logs are different, choose:
+- sed is your friend
+- edit ircilicious.py and adapt the regex ``lutin`` around line 102 
 
-Les fichiers de log doivent être au format suivant (sinon il faudra adapter les
-regex ou file un coup de sed au fichier) :
+Then::
 
-21:07 < hr> han putain
-21:07 < hr> mais c'est trop de la fomblardise express gate en fait
-21:08 -!- frak [n=grmbl@phok.org] has quit [Remote closed the connection]
+	$ python irclicious.py nomdufichierdelog
 
-Ensuite il suffit de faire :
-$ ./irclicious.py nomdufichierdelog
+Here, ``ircilicious.py`` would propose the
+``http://github.com/dzen/deliciousirc/`` URL with ``nick, delicious, irc`` tags
+in an ``ncurses`` interface. You might then view the page with your default
+browser, retag it if you feel like it, and post it to delicious.
 
-Le fichier crap.txt accumule les domaines de la 'scraplist', c'est-à-dire ceux
-dont on ne veut plus voir les urls parce qu'on sait qu'on ne les postera jamais.
+In addition, you may "scrap" it, meaning that the *domain* (not the URL) would
+be added to the ``crap.txt`` file, and irclicious.py would never propose URL
+from that domain again.
 
-Le principe est d'utiliser au maximum les tags existant (donc ne pas créer de
-synonymes), et de ne jamais laisser les tags 'Unbundled', c'est-à-dire ne
-faisant pas partie d'un groupe de tags.
+Have fun !
