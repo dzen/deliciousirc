@@ -93,7 +93,7 @@ def getfile(infile=None):
 
     return res
 
-def buildlistfromfile(infile, verbose=True):
+def buildlistfromfile(infile, verbose=True, conf={}):
     """Return a list of lines containing URLs in infile"""
     res = infile
     for func in (filterurl,filtercrap):
@@ -333,79 +333,9 @@ class MainWindow(object):
         item.tags = [s.strip() for s in tag.split(',')]
 
 
-#def run():
-#    """Main urwid loop"""
-#
-#
-#
-#    def dlcpost(item):
-#        if item.posted:
-#            return
-#        titre = re.compile(r'<title>(.*?)</title>')
-#
-#        def getpagetitle(url):
-#            import urllib2
-#            try:
-#                furl = urllib2.urlopen(url)
-#                contenu = furl.read()
-#                letitre = titre.findall(contenu)
-#                if letitre:
-#                    return letitre[0]
-#                else:
-#                    letitre = "No description"
-#                    return letitre
-#            except:
-#                return "No description"
-#
-#        titre = getpagetitle(item.url)
-#        deliciousapi.add(dlclogin, dlcpass,
-#                        item.url, titre,
-#                        tags = ' '.join(item.tags))
-#        item.posted = True
-#        item.widget.set_text('%1s%1s %s' % ('s'*item.scrapped,
-#                                            'p'*item.posted,
-#                                            item.url[:size[0]-3]))
-#
-#
-#    while True:
-#        focus, _ign = listbox.body.get_focus()
-#        tagedit.set_caption('%s\nLutin : %s\nTags : ' %
-#                (focus.url[:size[0]-2],focus.lutin))
-#        tagedit.set_edit_text('%s' % ', '.join(focus.tags))
-#        footer = urwid.AttrWrap(tagedit,'header')
-#        view = urwid.Frame(listbox, header, footer)
-#        canvas = view.render(size, focus=True)
-#        ui.draw_screen(size, canvas)
-#        keys = None
-#        while not keys:
-#            keys = ui.get_input()
-#
-#        for k in keys:
-#            if k in ('q','Q'):
-#                # quit
-#                crapfile = open('crap.txt','a')
-#                crapfile.writelines(scraplist)
-#                crapfile.close()
-#                return
-#            if k in ('s','S'):
-#                # scrap
-#                scrap(focus, scraplist)
-#            if k in ('v','V'):
-#                # view
-#                webbrowser.open_new_tab(focus.url)
-#                ui.clear()
-#            if k in ('r','R','enter'):
-#                # retag
-#                retag(focus)
-#            if k in ('p','P'):
-#                # post
-#                dlcpost(focus)
-#            if "window resize" in keys:
-#                cols, rows = ui.get_cols_rows()
-#            view.keypress(size, k)
-
 if __name__ == "__main__":
-    scraplist = []
+    # get options from teh command line
+
     p = optparse.OptionParser(
         description='Parses irc logfile to find urls to be posted to del.icio.us',
         prog='gculicious',
@@ -416,18 +346,22 @@ if __name__ == "__main__":
     if len(arguments) > 1:
         p.print_help()
         exit
+
+
+    # gets the configuration
     print "Reading config file... "
     config = yaml.load(file('./irclicious.yml'))
     pprint.pprint(config)
-#    dlclogin = config.get('delicious','login')
-#    dlcpass = config.get('delicious','pass')
     if len(arguments) == 1:
         fich = getfile(arguments[0])
     else:
         fich = getfile()
+
+
+    # parses the file
     print "Building url list... "
-    urls = buildlistfromfile(fich, options.verbose)
+    urls = buildlistfromfile(fich, options.verbose, config)
 
-
+    # launches the curswin
     mw = MainWindow(config, urls)
     mw.build()
