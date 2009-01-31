@@ -7,7 +7,7 @@ if possible, posts to delicious.
 """
 
 __version__ = "0.02"
-__copyright__ = "Copyright (c) 2007-2009 GCU"
+__copyright__ = "Copyright (c) 2007 GCU"
 __license__ = "BSD"
 
 import sys
@@ -18,15 +18,12 @@ import yaml
 import webbrowser
 from urlparse import urlparse
 import pprint
+import threading
 
 import urwid
 import urwid.curses_display
-#kinda gruika
 
-#import deliciousapi as deliciousmodule
 import deliciousapi
-
-from deliciousapi import DeliciousAPI
 
 def getpagetitle(url):
     import urllib2
@@ -71,15 +68,28 @@ class PatternList(object):
 
 def filterurl(line):
     """Return True if url in line, False otherwise"""
+    print 'filterurl call'
     url = (r'https?://','www\.')
     urlpattern = PatternList(url)
     return (line in urlpattern)
 
 def filtercrap(line):
     """Return True if line not in crapfile, False otherwise"""
+    print 'filtecrap call'
     crap = [url.rstrip() for url in open('crap.txt').readlines() if url[0] !='#']
     crappattern = PatternList(crap)
     return (line not in crappattern)
+
+
+def crap_patterns_list():
+    """returns a build craplist"""
+    crap = [url.rstrip() for url in open('crap.txt').readlines() if url[0] !='#']
+    return PatternList(crap)
+
+def url_patterns_list():
+    """blahblahblah"""
+    return PatternList((r'https?://','www\.'))
+
 
 def getfile(infile=None):
     """Return a read-opened file handler, sys.stdin if arg is None"""
@@ -95,16 +105,25 @@ def getfile(infile=None):
 
 def buildlistfromfile(infile, verbose=True, conf={}):
     """Return a list of lines containing URLs in infile"""
-    res = infile
-    for func in (filterurl,filtercrap):
-        res = filter(func, res)
-    infile.close()
+    crap_pattern = crap_patterns_list()
+    url_pattern = url_patterns_list()
+
+
+    funlist = [url for url in infile if url in url_pattern]
+
+    funlist = [url for url in funlist if url not in crap_pattern]
+
+    pprint.pprint(funlist)
+
+    # grosse flemme de s/res/funlist
+    res = funlist
 
     lutin = re.compile(r'\d{2}:\d{2} <?[ \+@]?(.*?)>? ')
     url = re.compile(r'(https?://.*?|www\..*?)[ ,)\n]')
     tags = re.compile(r' #(.*?)#[ ,\n]')
 
     liste = []
+    print res
     for line in res:
         if verbose:
             print >> sys.stderr, line,
@@ -185,10 +204,6 @@ class MainWindow(object):
         self.urls = urls
         self.conf = conf
         self.ui = urwid.curses_display.Screen()
-        self.dh = DeliciousAPI(
-                conf.get('delicious', 'login'),
-                conf.get('delicious', 'pass'))
-
         self.scraplist = []
         self.view = None
 
@@ -296,7 +311,12 @@ class MainWindow(object):
 #            datestamp of the item (format "CCYY-MM-DDThh:mm:ssZ")."""
         if not item.title:
             item.title = getpagetitle(item.url) or self.inputwidget("title:")
-#        self.dh.post(item.url, title, tags = ' '.join(item.tags))
+
+        # launch posting in a new thread
+        threading.Thread(None, deliciousapi.add,
+            (self.conf.get('login'), self.conf.get('pass'), item.url, item.title),
+            {'tags' : ' '.join(item.tags)}).start()
+
         item.post()
 
 # }}}
@@ -313,6 +333,7 @@ class MainWindow(object):
         self.view.set_focus('footer')
         self.tagedit.set_edit_pos(len(self.tagedit.edit_text))
         self.tagedit.set_text(caption)
+        self.redisplay()
         while True:
             keys = self.ui.get_input()
             self.redisplay()
@@ -341,8 +362,15 @@ if __name__ == "__main__":
         prog='gculicious',
         version='gculicious 0.01',
         usage='gculicious.py logfile',)
-    p.add_option('-v', '--verbose', action ='store_true', help='returns original line in addition to filtered elements')
+    p.add_option(
+        '-v', '--verbose', action ='store_true', help='returns original line in addition to filtered elements')
+    p.add_option(
+        '-c', '--conf', dest="configuration",
+        help="configuration file", metavar="CONF")
     options, arguments = p.parse_args()
+
+    pprint.pprint(options)
+
     if len(arguments) > 1:
         p.print_help()
         exit
@@ -350,8 +378,7 @@ if __name__ == "__main__":
 
     # gets the configuration
     print "Reading config file... "
-    config = yaml.load(file('./irclicious.yml'))
-    pprint.pprint(config)
+    config = yaml.load(file(options.configuration or './irclicious.yml'))
     if len(arguments) == 1:
         fich = getfile(arguments[0])
     else:
@@ -363,5 +390,5 @@ if __name__ == "__main__":
     urls = buildlistfromfile(fich, options.verbose, config)
 
     # launches the curswin
-    mw = MainWindow(config, urls)
-    mw.build()
+#    mw = MainWindow(config, urls)
+#    mw.build()
