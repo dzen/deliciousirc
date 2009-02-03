@@ -113,7 +113,6 @@ def buildlistfromfile(infile, verbose=True, conf={}):
 
     funlist = [url for url in funlist if url not in crap_pattern]
 
-    pprint.pprint(funlist)
 
     # grosse flemme de s/res/funlist
     res = funlist
@@ -123,7 +122,6 @@ def buildlistfromfile(infile, verbose=True, conf={}):
     tags = re.compile(r' #(.*?)#[ ,\n]')
 
     liste = []
-    print res
     for line in res:
         if verbose:
             print >> sys.stderr, line,
@@ -139,7 +137,9 @@ def buildlistfromfile(infile, verbose=True, conf={}):
             if (len(_lut)):
                 taglist.append(lutin.findall(line)[0])
                 if tags.findall(line):
-                    taglist.extend(tags.findall(line)[0].split(','))
+                    _tags = tags.findall(line)[0].split(',')
+                    if _tags not in conf.get('exclude_tags'):
+                        taglist.extend(_tags)
                 d['tags'] = taglist
                 liste.append(d)
 
@@ -235,13 +235,25 @@ class MainWindow(object):
         self.instruct = urwid.Text("[v]iew [r]etag [i]nfos [p]ost [s]crap [q]quit")
         self.header = urwid.AttrWrap(self.instruct, 'header')
         self.tagedit = urwid.Edit("")
+        self.titledit = urwid.Edit("")
         self.footer = urwid.AttrWrap(self.tagedit,'header')
         self.view = urwid.Frame(self.listbox, self.header, self.footer)
 
+        self.infos = urwid.Overlay(
+            urwid.AttrWrap(self.tagedit, 'tags'),
+            urwid.AttrWrap(self.titledit, 'title'),
+            ('fixed left', 5), 16, ('fixed top', 0), 1 )
+
         while 1:
-            self.redisplay()
             keys = None
             focus, _ign = self.listbox.body.get_focus()
+            self.tagedit.set_edit_text('%s' % ', '.join(focus.tags))
+            self.tagedit.set_caption('%s\nLutin : %s\nTags : ' %
+                    (focus.url[:self.size[0]-2],focus.lutin))
+            self.tagedit.set_edit_text('%s' % ', '.join(focus.tags))
+            self.footer = urwid.AttrWrap(self.tagedit,'header')
+            self.view = urwid.Frame(self.listbox, self.header, self.footer)
+            self.redisplay()
 
             while not keys:
                 keys = self.ui.get_input()
@@ -249,7 +261,7 @@ class MainWindow(object):
                 if k in ('q','Q'):
                     # quit
                     crapfile = open(self.conf.get('scraplist', 'a+'))
-                    crapfile.writelines(scraplist)
+                    crapfile.writelines(self.scraplist)
                     crapfile.close()
                     return
 
@@ -258,6 +270,7 @@ class MainWindow(object):
                     self.scrap(focus, self.conf.get('scraplist'))
 
                 if k in ('i','I'):
+                    self.infos.render(self.size, focus=True)
                     self.display_url_info(focus)
 
                 if k in ('r','R','enter'):
@@ -350,6 +363,7 @@ class MainWindow(object):
     def retag(self, item):
         """retags teh current url"""
         self.view.set_focus('footer')
+        self.tagedit.set_edit_pos(len(self.tagedit.edit_text))
         tag = self.inputwidget('tags:').strip()
         item.tags = [s.strip() for s in tag.split(',')]
 
@@ -369,12 +383,12 @@ if __name__ == "__main__":
         help="configuration file", metavar="CONF")
     options, arguments = p.parse_args()
 
-    pprint.pprint(options)
+    if options.verbose:
+        pprint.pprint(options)
 
     if len(arguments) > 1:
         p.print_help()
         exit
-
 
     # gets the configuration
     print "Reading config file... "
@@ -384,11 +398,11 @@ if __name__ == "__main__":
     else:
         fich = getfile()
 
-
     # parses the file
     print "Building url list... "
     urls = buildlistfromfile(fich, options.verbose, config)
 
     # launches the curswin
-#    mw = MainWindow(config, urls)
-#    mw.build()
+    print urls
+    mw = MainWindow(config, urls)
+    mw.build()
