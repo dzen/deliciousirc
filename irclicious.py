@@ -232,7 +232,7 @@ class MainWindow(object):
         itemlist = [UrlWidget(line, self.size, None,'selected') for line in urls]
         self.items = urwid.PollingListWalker(itemlist)
         self.listbox = urwid.ListBox(self.items)
-        self.instruct = urwid.Text("[v]iew [r]etag [i]nfos [p]ost [s]crap [q]quit")
+        self.instruct = urwid.Text("[v]iew [r]etag [p]ost [s]crap [q]quit")
         self.header = urwid.AttrWrap(self.instruct, 'header')
         self.tagedit = urwid.Edit("")
         self.titledit = urwid.Edit("")
@@ -268,10 +268,6 @@ class MainWindow(object):
                 if k in ('s','S'):
                     # scrap
                     self.scrap(focus, self.conf.get('scraplist'))
-
-                if k in ('i','I'):
-                    self.infos.render(self.size, focus=True)
-                    self.display_url_info(focus)
 
                 if k in ('r','R','enter'):
                     self.retag(focus)
@@ -323,12 +319,16 @@ class MainWindow(object):
 #        &dt (optional)
 #            datestamp of the item (format "CCYY-MM-DDThh:mm:ssZ")."""
         if not item.title:
-            item.title = getpagetitle(item.url) or self.inputwidget("title:")
+            item.title = getpagetitle(item.url) or self.inputwidget("title")
 
-        # launch posting in a new thread
-        threading.Thread(None, deliciousapi.add,
-            (self.conf.get('login'), self.conf.get('pass'), item.url, item.title),
-            {'tags' : ' '.join(item.tags)}).start()
+        # launch posting in a new thread ?
+        deliciousapi.add(
+                self.conf.get('login'), self.conf.get('pass'),
+                item.url, item.title, tags=' '.join(item.tags))
+
+#        threading.Thread(None, deliciousapi.add,
+#            (self.conf.get('login'), self.conf.get('pass'), item.url, item.title),
+#            {'tags' : ' '.join(item.tags)}).start()
 
         item.post()
 
@@ -343,9 +343,11 @@ class MainWindow(object):
 
     def inputwidget(self, caption):
         """returns a text entered"""
+        old_text = self.tagedit.edit_text
         self.view.set_focus('footer')
+        self.tagedit.edit_text = ""
         self.tagedit.set_edit_pos(len(self.tagedit.edit_text))
-        self.tagedit.set_text(caption)
+        self.tagedit.set_caption('%s: ' % caption)
         self.redisplay()
         while True:
             keys = self.ui.get_input()
@@ -354,7 +356,7 @@ class MainWindow(object):
                 if k == "enter":
                     self.view.set_focus('body')
                     ret = self.tagedit.edit_text
-                    self.tagedit.edit_text = ""
+                    self.tagedit.edit_text = old_text
                     self.redisplay()
                     return ret
                 self.view.keypress(self.size, k)
@@ -364,7 +366,7 @@ class MainWindow(object):
         """retags teh current url"""
         self.view.set_focus('footer')
         self.tagedit.set_edit_pos(len(self.tagedit.edit_text))
-        tag = self.inputwidget('tags:').strip()
+        tag = self.inputwidget('tags').strip()
         item.tags = [s.strip() for s in tag.split(',')]
 
 
