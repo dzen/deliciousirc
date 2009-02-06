@@ -1,0 +1,17 @@
+--- #YAML:1.1
+login: deliciouslogin
+pass: deliciouspass
+
+debug: True
+
+# posts are not public
+# for tests
+shared: no
+
+exclude_tags:
+    - notag
+    - enotag
+    - osef
+
+
+scraplist: 'crap.txt' 
