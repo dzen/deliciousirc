@@ -27,6 +27,7 @@ import deliciousapi
 import urllib2
 
 def getpagetitle(url):
+    titre = re.compile(r'<title>(.*?)</title>')
     try:
         furl = urllib2.urlopen(url)
         contenu = furl.read()
