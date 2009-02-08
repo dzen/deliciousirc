@@ -24,9 +24,9 @@ import urwid
 import urwid.curses_display
 
 import deliciousapi
+import urllib2
 
 def getpagetitle(url):
-    import urllib2
     try:
         furl = urllib2.urlopen(url)
         contenu = furl.read()
@@ -303,21 +303,6 @@ class MainWindow(object):
 # {{{ def: post
     def post(self, item):
         """post teh item at delicious"""
-#    def posts_add(self, url, description, extended="", tags="", dt="",
-#            replace="no", shared="yes", **kwds):
-#        """Add a post to del.icio.us. Returns a `result` message or raises an
-#        ``DeliciousError``. See ``self.request()``.
-#
-#        &url (required)
-#            the url of the item.
-#        &description (required)
-#            the description of the item.
-#        &extended (optional)
-#            notes for the item.
-#        &tags (optional)
-#            tags for the item (space delimited).
-#        &dt (optional)
-#            datestamp of the item (format "CCYY-MM-DDThh:mm:ssZ")."""
         if not item.title:
             item.title = getpagetitle(item.url) or self.inputwidget("title")
 
@@ -341,11 +326,12 @@ class MainWindow(object):
 
 
 
-    def inputwidget(self, caption):
+    def inputwidget(self, caption, keepcontent=False):
         """returns a text entered"""
         old_text = self.tagedit.edit_text
-        self.view.set_focus('footer')
-        self.tagedit.edit_text = ""
+#        self.view.set_focus('footer')
+        if not keepcontent:
+            self.tagedit.edit_text = ""
         self.tagedit.set_edit_pos(len(self.tagedit.edit_text))
         self.tagedit.set_caption('%s: ' % caption)
         self.redisplay()
@@ -366,7 +352,7 @@ class MainWindow(object):
         """retags teh current url"""
         self.view.set_focus('footer')
         self.tagedit.set_edit_pos(len(self.tagedit.edit_text))
-        tag = self.inputwidget('tags').strip()
+        tag = self.inputwidget('tags', True).strip()
         item.tags = [s.strip() for s in tag.split(',')]
 
 
