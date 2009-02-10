@@ -151,7 +151,7 @@ class UrlWidget(urwid.WidgetWrap):
     def __init__(self, item, size, unfocused, focused=None):
         self.url = item['url']
         self.title = None
-        self.tags = item['tags']
+        self.tags = item['tags'] or []
         self.lutin = self.tags[0]
         self.scrapped = False
         self.posted = False
@@ -248,13 +248,14 @@ class MainWindow(object):
         while 1:
             keys = None
             focus, _ign = self.listbox.body.get_focus()
-            self.tagedit.set_edit_text('%s' % ', '.join(focus.tags))
-            self.tagedit.set_caption('%s\nLutin : %s\nTags : ' %
+            if focus:
+                self.tagedit.set_edit_text('%s' % ', '.join(focus.tags))
+                self.tagedit.set_caption('%s\nLutin : %s\nTags : ' %
                     (focus.url[:self.size[0]-2],focus.lutin))
-            self.tagedit.set_edit_text('%s' % ', '.join(focus.tags))
-            self.footer = urwid.AttrWrap(self.tagedit,'header')
-            self.view = urwid.Frame(self.listbox, self.header, self.footer)
-            self.redisplay()
+                self.tagedit.set_edit_text('%s' % ', '.join(focus.tags))
+                self.footer = urwid.AttrWrap(self.tagedit,'header')
+                self.view = urwid.Frame(self.listbox, self.header, self.footer)
+                self.redisplay()
 
             while not keys:
                 keys = self.ui.get_input()
@@ -330,8 +331,8 @@ class MainWindow(object):
     def inputwidget(self, caption, keepcontent=False):
         """returns a text entered"""
         old_text = self.tagedit.edit_text
-#        self.view.set_focus('footer')
         if not keepcontent:
+            self.view.set_focus('footer')
             self.tagedit.edit_text = ""
         self.tagedit.set_edit_pos(len(self.tagedit.edit_text))
         self.tagedit.set_caption('%s: ' % caption)
@@ -393,5 +394,8 @@ if __name__ == "__main__":
 
     # launches the curswin
     print urls
+    if len(urls) == 0:
+        pprint.pprint('no such url to post')
+        sys.exit(0)
     mw = MainWindow(config, urls)
     mw.build()
