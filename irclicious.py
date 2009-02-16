@@ -261,10 +261,16 @@ class MainWindow(object):
                 keys = self.ui.get_input()
             for k in keys:
                 if k in ('q','Q'):
+                    pprint.pprint(self.conf.get('scraplist'))
                     # quit
-                    crapfile = open(self.conf.get('scraplist', 'a+'))
-                    crapfile.writelines(self.scraplist)
-                    crapfile.close()
+                    try:
+                        crapfile = open(self.conf.get('scraplist'), 'a+')
+                        crapfile.writelines(self.scraplist)
+                        crapfile.close()
+                    except:
+                        pprint.pprint(self.scraplist)
+                        pprint.pprint(self.conf.get('scraplist'))
+                        pprint.pprint(crapfile)
                     return
 
                 if k in ('s','S'):
