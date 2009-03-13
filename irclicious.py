@@ -66,7 +66,6 @@ class PatternList(object):
         return ret
 
 
-
 def filterurl(line):
     """Return True if url in line, False otherwise"""
     print 'filterurl call'
@@ -139,10 +138,11 @@ def buildlistfromfile(infile, verbose=True, conf={}):
                 taglist.append(lutin.findall(line)[0])
                 if tags.findall(line):
                     _tags = tags.findall(line)[0].split(',')
-                    if _tags not in conf.get('exclude_tags'):
-                        taglist.extend(_tags)
-                d['tags'] = taglist
-                liste.append(d)
+                    _tags = [tag.lower() for tag in _tags]
+                    taglist.extend(_tags)
+                if not (set(taglist) & set(conf.get('exclude_tags'))):
+                    d['tags'] = taglist
+                    liste.append(d)
 
     return liste
 
