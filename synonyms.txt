@@ -1,0 +1,4 @@
+# tag, synonym1, synonym2, ...
+debugging, debug
+hooks, hook
+tips, tip, hint

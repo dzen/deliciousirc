@@ -90,6 +90,19 @@ def url_patterns_list():
     """blahblahblah"""
     return PatternList((r'https?://','www\.'))
 
+def build_synonyms(synfile):
+    """ build synonyms dict from textfile"""
+    synfile = open(synfile)
+    synlists = (line.rstrip().split(',') 
+                    for line in synfile if line[0]!='#')
+    syndict = {}
+    for liste in synlists:
+        value = liste[0].strip()
+        del liste[0]
+        for key in liste:
+            syndict[key.strip()] = value
+    return syndict
+
 
 def getfile(infile=None):
     """Return a read-opened file handler, sys.stdin if arg is None"""
@@ -107,6 +120,7 @@ def buildlistfromfile(infile, verbose=True, conf={}):
     """Return a list of lines containing URLs in infile"""
     crap_pattern = crap_patterns_list()
     url_pattern = url_patterns_list()
+    synonym = build_synonyms(conf['synonyms'])
 
 
     funlist = [url for url in infile if url in url_pattern]
@@ -138,7 +152,8 @@ def buildlistfromfile(infile, verbose=True, conf={}):
                 taglist.append(lutin.findall(line)[0])
                 if tags.findall(line):
                     _tags = tags.findall(line)[0].split(',')
-                    _tags = [tag.lower() for tag in _tags]
+                    _tags = [(synonym.get(tag.lower()) or tag.lower()) 
+                            for tag in _tags]
                     taglist.extend(_tags)
                 if not (set(taglist) & set(conf.get('exclude_tags'))):
                     d['tags'] = taglist
