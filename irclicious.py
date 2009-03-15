@@ -81,9 +81,9 @@ def filtercrap(line):
     return (line not in crappattern)
 
 
-def crap_patterns_list():
+def crap_patterns_list(conf):
     """returns a build craplist"""
-    crap = [url.rstrip() for url in open('crap.txt').readlines() if url[0] !='#']
+    crap = [url.rstrip() for url in open(conf.get('scraplist')).readlines() if url[0] !='#']
     return PatternList(crap)
 
 def url_patterns_list():
@@ -105,7 +105,7 @@ def getfile(infile=None):
 
 def buildlistfromfile(infile, verbose=True, conf={}):
     """Return a list of lines containing URLs in infile"""
-    crap_pattern = crap_patterns_list()
+    crap_pattern = crap_patterns_list(conf)
     url_pattern = url_patterns_list()
 
 
