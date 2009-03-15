@@ -149,7 +149,7 @@ def buildlistfromfile(infile, verbose=True, conf={}):
             taglist = []
             _lut = lutin.findall(line)
             if (len(_lut)):
-                taglist.append(lutin.findall(line)[0])
+                taglist.append((synonym.get(_lut[0]) or _lut[0]))
                 if tags.findall(line):
                     _tags = tags.findall(line)[0].split(',')
                     _tags = [(synonym.get(tag.lower()) or tag.lower()) 
