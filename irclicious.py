@@ -313,6 +313,7 @@ class MainWindow(object):
         """post teh item at delicious"""
         if not item.title:
             item.title = getpagetitle(item.url) or self.inputwidget("title")
+            item.title = unicode(item.title, errors='ignore')
 
         # launch posting in a new thread ?
         deliciousapi.add(
