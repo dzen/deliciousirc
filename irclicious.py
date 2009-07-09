@@ -124,6 +124,8 @@ def buildlistfromfile(infile, verbose=True, conf={}):
             if i.startswith('www'):
                 i = 'http://%s' % i
             if i in [u['url'] for u in liste]:
+                # FIXME we should keep the last instance, as it usually
+                # goes with the best tags
                 continue
             d = {}
             d['url'] = i
