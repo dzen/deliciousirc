@@ -13,5 +13,6 @@ exclude_tags:
     - enotag
     - osef
 
+synonyms: 'synonyms.txt'
 
 scraplist: 'crap.txt' 
