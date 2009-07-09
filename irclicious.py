@@ -135,7 +135,7 @@ def buildlistfromfile(infile, verbose=True, conf={}):
                 taglist.append(lutin.findall(line)[0])
                 if tags.findall(line):
                     _tags = tags.findall(line)[0].split(',')
-                    _tags = [tag.lower() for tag in _tags]
+                    _tags = [tag.lower().strip() for tag in _tags]
                     taglist.extend(_tags)
                 if not (set(taglist) & set(conf.get('exclude_tags'))):
                     d['tags'] = taglist
