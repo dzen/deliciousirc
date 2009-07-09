@@ -109,13 +109,8 @@ def buildlistfromfile(infile, verbose=True, conf={}):
     url_pattern = url_patterns_list()
 
 
-    funlist = [url for url in infile if url in url_pattern]
-
-    funlist = [url for url in funlist if url not in crap_pattern]
-
-
-    # grosse flemme de s/res/funlist
-    res = funlist
+    res = [url for url in infile if url in url_pattern]
+    res = [url for url in res if url not in crap_pattern]
 
     lutin = re.compile(r'\d{2}:\d{2} <?[ \+@]?(.*?)>? ')
     url = re.compile(r'(https?://.*?|www\..*?)[ ,)\n]')
