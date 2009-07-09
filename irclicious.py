@@ -396,8 +396,12 @@ if __name__ == "__main__":
     print "Building url list... "
     urls = buildlistfromfile(fich, options.verbose, config)
 
+    # debugging
+    if options.verbose:
+        pprint.pprint(urls)
+        sys.exit(0)
+
     # launches the curswin
-    print urls
     if len(urls) == 0:
         pprint.pprint('no such url to post')
         sys.exit(0)
