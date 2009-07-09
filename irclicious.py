@@ -137,10 +137,10 @@ def buildlistfromfile(infile, verbose=True, conf={}):
         for i in url.findall(line):
             if i.startswith('www'):
                 i = 'http://%s' % i
-            if i in [u['url'] for u in liste]:
-                # FIXME we should keep the last instance, as it usually
-                # goes with the best tags
-                continue
+            # we keep the last instance of a given url in the log
+            for k,u in enumerate(liste):
+                if u['url']==i:
+                    del liste[k]
             d = {}
             d['url'] = i
             taglist = []
