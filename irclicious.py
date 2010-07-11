@@ -23,7 +23,7 @@ import threading
 import urwid
 import urwid.curses_display
 
-import deliciousapi
+import pydelicious
 import urllib2
 
 def getpagetitle(url):
@@ -329,11 +329,11 @@ class MainWindow(object):
             item.title = unicode(item.title, errors='ignore')
 
         # launch posting in a new thread ?
-        deliciousapi.add(
+        pydelicious.add(
                 self.conf.get('login'), self.conf.get('pass'),
                 item.url, item.title, tags=' '.join(item.tags))
 
-#        threading.Thread(None, deliciousapi.add,
+#        threading.Thread(None, pydelicious.add,
 #            (self.conf.get('login'), self.conf.get('pass'), item.url, item.title),
 #            {'tags' : ' '.join(item.tags)}).start()
 

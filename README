@@ -4,7 +4,7 @@ irclicious.py
 Depends
 -------
 - urwid http://excess.org/urwid/ 
-- deliciousapi http://www.michael-noll.com/wiki/Del.icio.us_Python_API
+- pydelicious http://http://code.google.com/p/pydelicious/
 
 Install
 -------
