@@ -227,7 +227,8 @@ class MainWindow(object):
         self.ui.register_palette([
                 ('body', 'black', 'light gray'),
                 ('selected', 'white', 'dark blue', 'standout'),
-                ('header', 'yellow', 'black', 'standout'),
+                #('header', 'yellow', 'black', 'standout'),
+                ('header', 'black', 'light gray', 'standout'),
         ])
         self.ui.run_wrapper(self.run)
 # }}}
@@ -274,7 +275,6 @@ class MainWindow(object):
                 keys = self.ui.get_input()
             for k in keys:
                 if k in ('q','Q'):
-                    pprint.pprint(self.conf.get('scraplist'))
                     # quit
                     try:
                         crapfile = open(self.conf.get('scraplist'), 'a+')
@@ -368,12 +368,13 @@ class MainWindow(object):
                     self.redisplay()
                     return ret
                 self.view.keypress(self.size, k)
+                self.redisplay()
 
 
     def retag(self, item):
         """retags teh current url"""
         self.view.set_focus('footer')
-        self.tagedit.set_edit_pos(len(self.tagedit.edit_text))
+        self.tagedit.set_edit_pos(len(self.tagedit.edit_text)-1)
         tag = self.inputwidget('tags', True).strip()
         item.tags = [s.strip() for s in tag.split(',')]
 
@@ -419,7 +420,7 @@ if __name__ == "__main__":
 
     # launches the curswin
     if len(urls) == 0:
-        pprint.pprint('no such url to post')
+        pprint.pprint('No urls to post today')
         sys.exit(0)
     mw = MainWindow(config, urls)
     mw.build()
