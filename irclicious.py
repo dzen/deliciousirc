@@ -147,7 +147,7 @@ def buildlistfromfile(infile, verbose=True, conf={}):
                             or tag.lower().strip()) 
                             for tag in _tags]
                     taglist.extend(_tags)
-                if not (set(taglist) & set(conf.get('exclude_tags'))):
+                if len(taglist)>1 and not (set(taglist) & set(conf.get('exclude_tags'))):
                     d['tags'] = taglist
                     liste.append(d)
 
