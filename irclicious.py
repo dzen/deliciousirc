@@ -66,13 +66,6 @@ class PatternList(object):
         return ret
 
 
-def filterurl(line):
-    """Return True if url in line, False otherwise"""
-    print 'filterurl call'
-    url = (r'https?://','www\.')
-    urlpattern = PatternList(url)
-    return (line in urlpattern)
-
 def filtercrap(line):
     """Return True if line not in crapfile, False otherwise"""
     print 'filtecrap call'
@@ -83,7 +76,8 @@ def filtercrap(line):
 
 def crap_patterns_list(conf):
     """returns a build craplist"""
-    crap = [url.rstrip() for url in open(conf.get('scraplist')).readlines() if url[0] !='#']
+    crap = [url.rstrip() for url in open(conf.get('scraplist')).readlines()
+            if url[0] !='#']
     return PatternList(crap)
 
 def url_patterns_list():
