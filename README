@@ -4,7 +4,7 @@ irclicious.py
 Depends
 -------
 - urwid http://excess.org/urwid/ 
-- pydelicious http://http://code.google.com/p/pydelicious/
+- pydelicious http://code.google.com/p/pydelicious/
 
 Install
 -------
