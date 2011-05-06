@@ -14,7 +14,7 @@ somewhere (I put it in ``~/bin/``).
 
 Running ircilicious
 -------------------
-Edit the ``irciliciousrc`` config file and put your ``delicious.com``
+Edit the ``ircilicious.yml`` config file and put your ``delicious.com``
 credentials in it, then ``chmod`` accordingly.
 
 Configuration
