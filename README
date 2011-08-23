@@ -5,6 +5,7 @@ Depends
 -------
 - urwid http://excess.org/urwid/ 
 - pydelicious http://code.google.com/p/pydelicious/
+- PyYAML http://pypi.python.org/pypi/PyYAML/
 
 Install
 -------
